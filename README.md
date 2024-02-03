@@ -15,3 +15,11 @@ Ntdll unhooking
 String/function name obfuscation using the onboard dictionary in /usr/share/dict/words
 
 APC injection via Early Bird method
+
+Self signed certificate automation
+
+Customized binary icon
+
+Usage
+
+Run the 
