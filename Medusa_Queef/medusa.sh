@@ -26,7 +26,9 @@ ___  ___         _                 _
      \_/\_\\__,_|\___|\___|_|                       
 
  An homage to Sektor7's Perun's Fart
+  
   credit: @SEKTOR7net @MalDevAcademy
+  
           by assume-breach                         
 EOF
 echo ""
