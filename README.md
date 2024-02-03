@@ -22,4 +22,6 @@ Customized binary icon
 
 **Usage**
 
-Run the setup.sh file to install all dependencies and set up your self signed certificate. 
+Run the setup.sh file to install all dependencies and set up your self signed certificate. Should you want to change out your self signed cert, you can always just run the setup script again. 
+
+
