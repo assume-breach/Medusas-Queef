@@ -2,7 +2,7 @@
 
 A variation on the Sektor7 Perun's Fart method from the Windows Evasion Course. 
 
-Features:
+**Features:**
 
 HTTP staging
 
@@ -20,6 +20,6 @@ Self signed certificate automation
 
 Customized binary icon
 
-Usage
+**Usage**
 
-Run the 
+Run the setup.sh file to install all dependencies and set up your self signed certificate. 
