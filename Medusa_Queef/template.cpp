@@ -18,7 +18,6 @@
 #include <psapi.h>
 #include <wininet.h>
 #include <ntstatus.h>
-#include <iostream>
 
 #pragma comment(lib, "wininet.lib")
 #pragma comment (lib, "crypt32.lib")
