@@ -5,9 +5,11 @@ A variation on the Sektor7 Perun's Fart method from the Windows Evasion Course.
 
 **Features:**
 
-HTTP staging
+HTTP(s) staging
 
 NT API usage 
+
+Custom GetProcAddress
 
 AES payload encryption
 
