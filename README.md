@@ -1,9 +1,11 @@
 # Medusas-Queef
-<img width="665" alt="Screenshot 2024-02-03 at 3 22 20 PM" src="https://github.com/assume-breach/Medusas-Queef/assets/76174163/39824225-8529-4f27-bba3-df95574b6325">
+<img width="466" alt="Screenshot 2024-03-08 at 5 10 59 PM" src="https://github.com/assume-breach/Medusas-Queef/assets/76174163/02364d79-29ed-4a21-8a20-9ade1a8c4ad9">
 
 A variation on the Sektor7 Perun's Fart method from the Windows Evasion Course. 
 
 **Features:**
+
+EXE/DLL compliation
 
 HTTP(s) staging
 
@@ -27,7 +29,7 @@ Customized binary icon to blend in with other executables/files
 
 Run the setup.sh file to install all dependencies and set up your self signed certificate. Should you want to change out your self signed cert, you can always just run the setup script again. 
 
-Run medusa.sh and follow the prompts to compile the binary. 
+Run queef.sh and follow the prompts to compile the binary/dll. 
 
 <img width="634" alt="Screenshot 2024-02-03 at 3 27 32 PM" src="https://github.com/assume-breach/Medusas-Queef/assets/76174163/d0a5ddbb-9b7e-4be2-bb51-8f64061319a1">
 
