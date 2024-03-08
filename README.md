@@ -31,7 +31,8 @@ Run the setup.sh file to install all dependencies and set up your self signed ce
 
 Run queef.sh and follow the prompts to compile the binary/dll. 
 
-<img width="634" alt="Screenshot 2024-02-03 at 3 27 32 PM" src="https://github.com/assume-breach/Medusas-Queef/assets/76174163/d0a5ddbb-9b7e-4be2-bb51-8f64061319a1">
+<img width="489" alt="Screenshot 2024-03-08 at 5 13 38 PM" src="https://github.com/assume-breach/Medusas-Queef/assets/76174163/df6fa2a3-2d1d-4e48-a2f4-8be7222e791a">
+
 
 Now set your payload sever according to whatever you entered into the script and host your payload file.
 
