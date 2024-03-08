@@ -1,4 +1,7 @@
 # Medusas-Queef
+
+Offensive Security Just Got A Lot Stankier
+
 <img width="466" alt="Screenshot 2024-03-08 at 5 10 59 PM" src="https://github.com/assume-breach/Medusas-Queef/assets/76174163/02364d79-29ed-4a21-8a20-9ade1a8c4ad9">
 
 A variation on the Sektor7 Perun's Fart method from the Windows Evasion Course. 
