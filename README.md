@@ -46,7 +46,7 @@ Download to the target.
 
 Execute and wait for your C2 callback. 
 
-<img width="1062" alt="Screenshot 2024-02-03 at 3 38 39 PM" src="https://github.com/assume-breach/Medusas-Queef/assets/76174163/2e86f9a0-723c-49ae-9906-21604516d467">
+<img width="1188" alt="Screenshot 2024-03-08 at 7 05 45 PM" src="https://github.com/assume-breach/Medusas-Queef/assets/76174163/1ae4361f-1da6-4728-be50-13d86c5f676c">
 
 Currently gets past Defender. Elastic flags it for suspicious parent child process and injection, but it could work against other EDRs. Try for yourself!
 
