@@ -50,3 +50,10 @@ Execute and wait for your C2 callback.
 
 Currently gets past Defender. Elastic flags it for suspicious parent child process and injection, but it could work against other EDRs. Try for yourself!
 
+**Known Issues**
+
+Sometimes, when using a python server to retrieve the shellcode file you might see the AES key being appended to the file.
+
+![Screenshot 2024-03-11 at 8 52 49 AM](https://github.com/assume-breach/Medusas-Queef/assets/76174163/eede2447-272e-4da0-b05f-2c7353deba8a)
+
+I'm not sure why this happens because it's intermittent. Move your shellcode file to an Apache server and try again.
